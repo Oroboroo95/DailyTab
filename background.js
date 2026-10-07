@@ -1,4 +1,4 @@
-// DailyTab - Background Service Worker
+// DailyTab - Background Script
 // Gestisce la logica per selezionare e aggiornare la DailyTab
 
 // Variabili globali
@@ -115,7 +115,11 @@ async function sendMessageToContentScripts(message) {
   try {
     const tabs = await browser.tabs.query({ url: ["about:home", "about:newtab"] });
     for (const tab of tabs) {
-      await browser.tabs.sendMessage(tab.id, message);
+      try {
+        await browser.tabs.sendMessage(tab.id, message);
+      } catch (e) {
+        console.log('Content script non caricato in tab:', tab.id);
+      }
     }
   } catch (error) {
     console.error('Errore nell\'invio del messaggio ai content script:', error);
@@ -149,6 +153,9 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // Aggiorna la DailyTab dopo l'eliminazione
       updateDailyTab();
     }
+    sendResponse({ success: true });
+  } else if (message.type === 'SAVE_CONFIG') {
+    // Salva la configurazione nel file config.json (non implementato in v2)
     sendResponse({ success: true });
   }
 });
