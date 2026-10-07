@@ -1,0 +1,212 @@
+/* DailyTab - Mobile First Styles */
+
+/* Reset base */
+#dailytab-container {
+  --dailytab-primary: #4285f4;
+  --dailytab-secondary: #34a853;
+  --dailytab-danger: #ea4335;
+  --dailytab-text: #202124;
+  --dailytab-text-secondary: #5f6368;
+  --dailytab-bg: #ffffff;
+  --dailytab-card-bg: #f8f9fa;
+  --dailytab-border: #dadce0;
+  --dailytab-shadow: rgba(0, 0, 0, 0.1);
+  
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Container principale */
+.dailytab-container {
+  width: 100%;
+  max-width: 100%;
+  padding: 12px 16px;
+  background-color: var(--dailytab-bg);
+  border-bottom: 1px solid var(--dailytab-border);
+}
+
+/* Header */
+.dailytab-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dailytab-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--dailytab-text);
+}
+
+.dailytab-date {
+  margin: 0;
+  font-size: 12px;
+  color: var(--dailytab-text-secondary);
+}
+
+/* Card della tab */
+.dailytab-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background-color: var(--dailytab-card-bg);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px var(--dailytab-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dailytab-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px var(--dailytab-shadow);
+}
+
+/* Icona */
+.dailytab-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.dailytab-icon img {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+/* Contenuto */
+.dailytab-content {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.dailytab-title {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--dailytab-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dailytab-category {
+  margin: 0;
+  font-size: 12px;
+  color: var(--dailytab-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Azioni */
+.dailytab-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.dailytab-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--dailytab-card-bg);
+  color: var(--dailytab-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dailytab-button:hover {
+  background-color: var(--dailytab-border);
+}
+
+.dailytab-button-open:hover {
+  color: var(--dailytab-primary);
+}
+
+.dailytab-button-delete:hover {
+  color: var(--dailytab-danger);
+}
+
+.dailytab-button:active {
+  transform: scale(0.95);
+}
+
+/* Messaggio vuoto */
+.dailytab-empty {
+  margin: 0;
+  font-size: 14px;
+  color: var(--dailytab-text-secondary);
+  text-align: center;
+  padding: 12px;
+}
+
+/* Adattamenti per mobile */
+@media (max-width: 768px) {
+  .dailytab-container {
+    padding: 10px 12px;
+  }
+
+  .dailytab-header h2 {
+    font-size: 16px;
+  }
+
+  .dailytab-card {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .dailytab-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .dailytab-title {
+    font-size: 13px;
+  }
+
+  .dailytab-category {
+    font-size: 11px;
+  }
+
+  .dailytab-button {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Adattamenti per desktop */
+@media (min-width: 769px) {
+  .dailytab-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+/* Animazione di ingresso */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dailytab-container {
+  animation: fadeIn 0.3s ease-out;
+}

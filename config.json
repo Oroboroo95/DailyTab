@@ -1,0 +1,15 @@
+{
+  "blacklist": {
+    "bookmark_folders": [],
+    "tab_categories": []
+  },
+  "whitelist": {
+    "bookmark_folders": [],
+    "tab_categories": ["inactive_tabs"]
+  },
+  "daily_tab_settings": {
+    "enabled": true,
+    "update_frequency_hours": 24,
+    "notification_time": "18:00"
+  }
+}

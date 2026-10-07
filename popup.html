@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DailyTab - Impostazioni</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <h1>DailyTab</h1>
+    
+    <div class="popup-section">
+      <h2>Impostazioni</h2>
+      <div class="popup-form">
+        <div class="form-group">
+          <label for="updateFrequency">Frequenza aggiornamento (ore):</label>
+          <input type="number" id="updateFrequency" min="1" max="168" value="24">
+        </div>
+        <div class="form-group">
+          <label for="notificationTime">Ora notifica:</label>
+          <input type="time" id="notificationTime" value="18:00">
+        </div>
+        <button id="saveSettings" class="popup-button">Salva</button>
+      </div>
+    </div>
+
+    <div class="popup-section">
+      <h2>Blacklist</h2>
+      <div class="blacklist-container">
+        <textarea id="blacklistFolders" placeholder="Nomi cartelle bookmark da escludere (uno per riga)"></textarea>
+        <button id="saveBlacklist" class="popup-button">Salva Blacklist</button>
+      </div>
+    </div>
+
+    <div class="popup-section">
+      <h2>Whitelist</h2>
+      <div class="whitelist-container">
+        <textarea id="whitelistFolders" placeholder="Nomi cartelle bookmark da includere (uno per riga)"></textarea>
+        <button id="saveWhitelist" class="popup-button">Salva Whitelist</button>
+      </div>
+    </div>
+
+    <div class="popup-footer">
+      <p>Versione 1.0</p>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
