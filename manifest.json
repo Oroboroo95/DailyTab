@@ -1,5 +1,5 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "DailyTab",
   "version": "1.0",
   "description": "Un plug-in per Firefox che mostra una tab casuale tra quelle inattive ogni giorno nella homepage",
@@ -7,13 +7,11 @@
     "tabs",
     "storage",
     "alarms",
-    "scripting"
-  ],
-  "host_permissions": [
     "<all_urls>"
   ],
   "background": {
-    "service_worker": "background.js"
+    "scripts": ["background.js"],
+    "persistent": false
   },
   "content_scripts": [
     {
