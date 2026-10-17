@@ -76,5 +76,10 @@ async function init() {
   });
 }
 
+// Aggiungi event listener per aprire DailyTab
+document.getElementById('openDailyTab').addEventListener('click', () => {
+  browser.tabs.create({ url: browser.runtime.getURL('dailytab.html') });
+});
+
 // Avvia l'inizializzazione quando il DOM è pronto
 document.addEventListener('DOMContentLoaded', init);
