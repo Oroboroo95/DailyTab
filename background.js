@@ -138,7 +138,7 @@ async function checkAndUpdateDailyTab() {
   }
 }
 
-// Gestisce i messaggi dai content script
+// Gestisce i messaggi dai content script e dalla pagina dailytab
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'GET_DAILY_TAB') {
     sendResponse({ tab: currentDailyTab });
@@ -150,20 +150,75 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.type === 'DELETE_TAB') {
     if (currentDailyTab && currentDailyTab.id) {
       browser.tabs.remove(currentDailyTab.id);
-      // Aggiorna la DailyTab dopo l'eliminazione
       updateDailyTab();
     }
     sendResponse({ success: true });
   } else if (message.type === 'SAVE_CONFIG') {
-    // Salva la configurazione nel file config.json (non implementato in v2)
+    sendResponse({ success: true });
+  } else if (message.type === 'REFRESH_DATA') {
+    saveTabs();
+    saveBookmarks();
     sendResponse({ success: true });
   }
 });
+
+// Funzione per salvare le tab aperte in chrome.storage
+async function saveTabs() {
+  try {
+    const tabs = await browser.tabs.query({});
+    const validTabs = tabs.filter(tab => tab.url && tab.title && !tab.url.startsWith('about:') && !tab.url.startsWith('moz-extension:'));
+    await browser.storage.local.set({ 
+      tabs: validTabs.map(t => ({ 
+        title: t.title, 
+        url: t.url, 
+        favicon: t.favIconUrl,
+        lastAccessed: t.lastAccessed 
+      })) 
+    });
+    console.log('Tab salvate:', validTabs.length);
+  } catch (error) {
+    console.error('Errore nel salvataggio delle tab:', error);
+  }
+}
+
+// Funzione per salvare i segnalibri in chrome.storage
+async function saveBookmarks() {
+  try {
+    const tree = await browser.bookmarks.getTree();
+    const bookmarks = [];
+    
+    function traverse(node) {
+      if (node.url && !node.url.startsWith('about:') && !node.url.startsWith('moz-extension:')) {
+        bookmarks.push({ 
+          title: node.title, 
+          url: node.url,
+          favicon: null
+        });
+      }
+      if (node.children) {
+        node.children.forEach(traverse);
+      }
+    }
+    
+    tree.forEach(traverse);
+    await browser.storage.local.set({ bookmarks: bookmarks.slice(0, 50) }); // Limita a 50 segnalibri
+    console.log('Segnalibri salvati:', bookmarks.length);
+    
+    // Invia notifica alla pagina dailytab che i dati sono stati aggiornati
+    await browser.runtime.sendMessage({ type: 'DATA_UPDATED' });
+  } catch (error) {
+    console.error('Errore nel salvataggio dei segnalibri:', error);
+  }
+}
 
 // Inizializzazione
 async function init() {
   await loadDailyTab();
   await checkAndUpdateDailyTab();
+  
+  // Salva i dati iniziali
+  await saveTabs();
+  await saveBookmarks();
   
   // Imposta un allarme per aggiornare la DailyTab ogni 24 ore
   const config = await loadConfig();
@@ -171,12 +226,21 @@ async function init() {
     delayInMinutes: 0, 
     periodInMinutes: config.daily_tab_settings.update_frequency_hours * 60 
   });
+  
+  // Imposta un allarme per sincronizzare i dati ogni 10 minuti
+  browser.alarms.create('syncData', { 
+    delayInMinutes: 0, 
+    periodInMinutes: 10 
+  });
 }
 
 // Listener per l'allarme
 browser.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === 'updateDailyTab') {
     updateDailyTab();
+  } else if (alarm.name === 'syncData') {
+    saveTabs();
+    saveBookmarks();
   }
 });
 
