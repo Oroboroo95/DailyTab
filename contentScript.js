@@ -1,6 +1,13 @@
 // DailyTab - Content Script
 // Inietta l'UI nella homepage di Firefox Mobile
 
+// Funzione per escape HTML
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 // Funzione per creare l'elemento DailyTab
 function createDailyTabElement(tab) {
   const dailyTabContainer = document.createElement('div');
@@ -8,11 +15,13 @@ function createDailyTabElement(tab) {
   dailyTabContainer.className = 'dailytab-container';
 
   if (!tab) {
-    dailyTabContainer.innerHTML = `
-      <div class="dailytab-card">
-        <p class="dailytab-empty">Nessuna tab non attiva trovata</p>
-      </div>
-    `;
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'dailytab-card';
+    const emptyP = document.createElement('p');
+    emptyP.className = 'dailytab-empty';
+    emptyP.textContent = 'Nessuna tab non attiva trovata';
+    cardDiv.appendChild(emptyP);
+    dailyTabContainer.appendChild(cardDiv);
     return dailyTabContainer;
   }
 
@@ -25,47 +34,78 @@ function createDailyTabElement(tab) {
     console.error('Errore nel parsing dell\'URL:', e);
   }
 
-  dailyTabContainer.innerHTML = `
-    <div class="dailytab-header">
-      <h2>DailyTab</h2>
-      <p class="dailytab-date">${new Date().toLocaleDateString('it-IT')}</p>
-    </div>
-    <div class="dailytab-card">
-      <div class="dailytab-icon">
-        <img src="${tab.favicon || browser.runtime.getURL('icons/icon48.png')}" alt="Favicon" />
-      </div>
-      <div class="dailytab-content">
-        <h3 class="dailytab-title">${escapeHtml(tab.title)}</h3>
-        <p class="dailytab-category">${escapeHtml(domain)}</p>
-      </div>
-      <div class="dailytab-actions">
-        <button class="dailytab-button dailytab-button-open" title="Apri">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-            <polyline points="15 3 21 3 21 9"/>
-            <line x1="10" y1="14" x2="21" y2="3"/>
-          </svg>
-        </button>
-        <button class="dailytab-button dailytab-button-delete" title="Elimina">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="15" y1="9" x2="9" y2="15"/>
-            <line x1="9" y1="9" x2="15" y2="15"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-  `;
+  // Crea gli elementi in modo sicuro senza innerHTML
+  const headerDiv = document.createElement('div');
+  headerDiv.className = 'dailytab-header';
+  const titleH2 = document.createElement('h2');
+  titleH2.textContent = 'DailyTab';
+  const dateP = document.createElement('p');
+  dateP.className = 'dailytab-date';
+  dateP.textContent = new Date().toLocaleDateString('it-IT');
+  headerDiv.appendChild(titleH2);
+  headerDiv.appendChild(dateP);
+
+  const cardDiv = document.createElement('div');
+  cardDiv.className = 'dailytab-card';
+
+  const iconDiv = document.createElement('div');
+  iconDiv.className = 'dailytab-icon';
+  const img = document.createElement('img');
+  img.src = tab.favicon || browser.runtime.getURL('icons/icon48.png');
+  img.alt = 'Favicon';
+  iconDiv.appendChild(img);
+
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'dailytab-content';
+  const titleH3 = document.createElement('h3');
+  titleH3.className = 'dailytab-title';
+  titleH3.textContent = tab.title;
+  const categoryP = document.createElement('p');
+  categoryP.className = 'dailytab-category';
+  categoryP.textContent = domain;
+  contentDiv.appendChild(titleH3);
+  contentDiv.appendChild(categoryP);
+
+  const actionsDiv = document.createElement('div');
+  actionsDiv.className = 'dailytab-actions';
+
+  const openButton = document.createElement('button');
+  openButton.className = 'dailytab-button dailytab-button-open';
+  openButton.title = 'Apri';
+  openButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+    <polyline points="15 3 21 3 21 9"/>
+    <line x1="10" y1="14" x2="21" y2="3"/>
+  </svg>`;
+
+  const deleteButton = document.createElement('button');
+  deleteButton.className = 'dailytab-button dailytab-button-delete';
+  deleteButton.title = 'Elimina';
+  deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="15" y1="9" x2="9" y2="15"/>
+    <line x1="9" y1="9" x2="15" y2="15"/>
+  </svg>`;
+
+  actionsDiv.appendChild(openButton);
+  actionsDiv.appendChild(deleteButton);
+
+  cardDiv.appendChild(iconDiv);
+  cardDiv.appendChild(contentDiv);
+  cardDiv.appendChild(actionsDiv);
+
+  dailyTabContainer.appendChild(headerDiv);
+  dailyTabContainer.appendChild(cardDiv);
 
   // Aggiungi event listener ai pulsanti
-  const openButton = dailyTabContainer.querySelector('.dailytab-button-open');
-  const deleteButton = dailyTabContainer.querySelector('.dailytab-button-delete');
+  const containerOpenButton = dailyTabContainer.querySelector('.dailytab-button-open');
+  const containerDeleteButton = dailyTabContainer.querySelector('.dailytab-button-delete');
 
-  openButton.addEventListener('click', () => {
+  containerOpenButton.addEventListener('click', () => {
     browser.runtime.sendMessage({ type: 'OPEN_TAB' });
   });
 
-  deleteButton.addEventListener('click', () => {
+  containerDeleteButton.addEventListener('click', () => {
     if (confirm('Sei sicuro di voler eliminare questa tab?')) {
       browser.runtime.sendMessage({ type: 'DELETE_TAB' });
     }
@@ -99,13 +139,6 @@ function injectDailyTabUI(tab) {
     // Se non troviamo la sezione, aggiungi in cima al body
     document.body.prepend(container);
   }
-}
-
-// Funzione per escape HTML
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
 }
 
 // Richiede la DailyTab corrente al background

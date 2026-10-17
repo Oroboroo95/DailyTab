@@ -1,5 +1,5 @@
 // DailyTab - Pagina locale per Firefox Android
-// Mostra un feed di tab e segnalibri salvati in chrome.storage
+// Mostra un feed di tab salvate in chrome.storage
 
 // Funzione per escape HTML
 function escapeHtml(text) {
@@ -15,30 +15,56 @@ function createFeedItem(title, url, favicon, type) {
   
   const faviconImg = favicon || browser.runtime.getURL('icons/icon48.png');
   
-  item.innerHTML = `
-    <div class="dailytab-icon">
-      <img src="${escapeHtml(faviconImg)}" alt="Favicon" onerror="this.src='${browser.runtime.getURL('icons/icon48.png')}'" />
-    </div>
-    <div class="dailytab-content">
-      <a href="${escapeHtml(url)}" class="dailytab-title" target="_blank">${escapeHtml(title)}</a>
-      <p class="dailytab-url">${escapeHtml(new URL(url).hostname.replace('www.', ''))}</p>
-    </div>
-    <div class="dailytab-actions">
-      <button class="dailytab-button dailytab-button-open" title="Apri" data-url="${escapeHtml(url)}">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-          <polyline points="15 3 21 3 21 9"/>
-          <line x1="10" y1="14" x2="21" y2="3"/>
-        </svg>
-      </button>
-    </div>
-  `;
+  // Crea la struttura DOM in modo sicuro
+  const iconDiv = document.createElement('div');
+  iconDiv.className = 'dailytab-icon';
+  const img = document.createElement('img');
+  img.src = faviconImg;
+  img.alt = 'Favicon';
+  img.onerror = function() { this.src = browser.runtime.getURL('icons/icon48.png'); };
+  iconDiv.appendChild(img);
+
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'dailytab-content';
+  const link = document.createElement('a');
+  link.href = url;
+  link.className = 'dailytab-title';
+  link.target = '_blank';
+  link.textContent = title;
+  contentDiv.appendChild(link);
+  
+  const urlP = document.createElement('p');
+  urlP.className = 'dailytab-url';
+  try {
+    urlP.textContent = new URL(url).hostname.replace('www.', '');
+  } catch (e) {
+    urlP.textContent = 'Web';
+  }
+  contentDiv.appendChild(urlP);
+
+  const actionsDiv = document.createElement('div');
+  actionsDiv.className = 'dailytab-actions';
+  
+  const openButton = document.createElement('button');
+  openButton.className = 'dailytab-button dailytab-button-open';
+  openButton.title = 'Apri';
+  openButton.setAttribute('data-url', url);
+  openButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+    <polyline points="15 3 21 3 21 9"/>
+    <line x1="10" y1="14" x2="21" y2="3"/>
+  </svg>`;
+  actionsDiv.appendChild(openButton);
+
+  item.appendChild(iconDiv);
+  item.appendChild(contentDiv);
+  item.appendChild(actionsDiv);
   
   // Aggiungi event listener al pulsante Apri
-  const openButton = item.querySelector('.dailytab-button-open');
-  openButton.addEventListener('click', (e) => {
+  const containerOpenButton = item.querySelector('.dailytab-button-open');
+  containerOpenButton.addEventListener('click', (e) => {
     e.preventDefault();
-    const url = openButton.getAttribute('data-url');
+    const url = containerOpenButton.getAttribute('data-url');
     browser.tabs.create({ url: url });
   });
   
@@ -78,7 +104,10 @@ async function loadAndDisplayData() {
     if (tabsContainer) {
       tabsContainer.innerHTML = '';
       if (sortedTabs.length === 0) {
-        tabsContainer.innerHTML = '<p class="dailytab-empty">Nessuna tab inattiva trovata</p>';
+        const emptyP = document.createElement('p');
+        emptyP.className = 'dailytab-empty';
+        emptyP.textContent = 'Nessuna tab inattiva trovata';
+        tabsContainer.appendChild(emptyP);
       } else {
         sortedTabs.forEach(tab => {
           tabsContainer.appendChild(createFeedItem(tab.title, tab.url, tab.favicon, 'tab'));
@@ -86,12 +115,15 @@ async function loadAndDisplayData() {
       }
     }
     
-
-    
   } catch (error) {
     console.error('Errore nel caricamento dei dati:', error);
-    document.getElementById('tabs-container').innerHTML = '<p class="dailytab-error">Errore nel caricamento delle tab</p>';
-    document.getElementById('bookmarks-container').innerHTML = '<p class="dailytab-error">Errore nel caricamento dei segnalibri</p>';
+    const tabsContainer = document.getElementById('tabs-container');
+    if (tabsContainer) {
+      const errorP = document.createElement('p');
+      errorP.className = 'dailytab-error';
+      errorP.textContent = 'Errore nel caricamento delle tab';
+      tabsContainer.appendChild(errorP);
+    }
   }
 }
 
