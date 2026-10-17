@@ -61,11 +61,10 @@ function updateDate() {
 // Funzione per caricare e mostrare i dati
 async function loadAndDisplayData() {
   try {
-    // Carica tab e segnalibri da chrome.storage
-    const result = await browser.storage.local.get(['tabs', 'bookmarks']);
+    // Carica tab da chrome.storage
+    const result = await browser.storage.local.get(['tabs']);
     
     const tabs = result.tabs || [];
-    const bookmarks = result.bookmarks || [];
     
     // Ordina le tab per lastAccessed (più vecchie prima)
     const sortedTabs = tabs.sort((a, b) => {
@@ -87,18 +86,7 @@ async function loadAndDisplayData() {
       }
     }
     
-    // Mostra i segnalibri
-    const bookmarksContainer = document.getElementById('bookmarks-container');
-    if (bookmarksContainer) {
-      bookmarksContainer.innerHTML = '';
-      if (bookmarks.length === 0) {
-        bookmarksContainer.innerHTML = '<p class="dailytab-empty">Nessun segnalibro trovato</p>';
-      } else {
-        bookmarks.forEach(bm => {
-          bookmarksContainer.appendChild(createFeedItem(bm.title, bm.url, bm.favicon, 'bookmark'));
-        });
-      }
-    }
+
     
   } catch (error) {
     console.error('Errore nel caricamento dei dati:', error);

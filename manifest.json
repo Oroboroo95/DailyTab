@@ -7,8 +7,7 @@
     "tabs",
     "storage",
     "alarms",
-    "<all_urls>",
-    "bookmarks"
+    "<all_urls>"
   ],
   "background": {
     "scripts": ["background.js"],
